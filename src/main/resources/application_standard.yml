@@ -1,0 +1,58 @@
+spring:
+  shardingsphere:
+    datasource:
+      #分库  两个表分配到2个库里面
+      names: m1,m2
+      m1:
+       type: com.alibaba.druid.pool.DruidDataSource
+       driver-class-name: com.mysql.cj.jdbc.Driver
+       url: jdbc:mysql://106.54.78.128:33061/yuhao_db?serverTimezone=GMT%2B8
+       username: yuhao
+       password: yuhao!@#
+
+      m2:
+        type: com.alibaba.druid.pool.DruidDataSource
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://106.54.78.128:33061/yuhao_db_2?serverTimezone=GMT%2B8
+        username: yuhao
+        password: yuhao!@#
+
+    sharding:
+      tables:
+        course:
+          #插入表，分表
+          actual-data-nodes:
+            # 分表 m1.course_$->{1..2}
+            #分库分表
+            m$->{1..2}.course_$->{1..2}
+      course:
+        key-generator:
+          columu: id
+          type: SNOWFLAKE
+          props:
+            work:
+              id: 1
+        #分片件策略-表
+        table-strategy:
+          #standard 标准化策略
+          standard:
+            sharding-columu: id
+            precise-algoritm-class-name: com.example.demo.config.
+            range-algorithm-class-name: com.example.demo.config.
+
+        #分片件策略-库
+        database-strategy:
+          #standard 标准化策略
+          standard:
+            precise-algoritm-class-name:
+            range-algorithm-class-name:
+    props:
+      sql:
+        show: true
+  main:
+    allow-bean-definition-overriding: true
+mybatis-plus:
+  config-location: classpath:mabitis-config.xml
+  mapper-locations: classpath:mapper/*.xml
+server:
+  port: 8081
